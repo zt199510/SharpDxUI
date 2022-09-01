@@ -1,20 +1,24 @@
-﻿using System;
+﻿using SharpDX;
+using SharpDX.Direct3D9;
+using SharpdxControl.Envir;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing.Imaging;
+using Color = System.Drawing.Color;
+using Font = System.Drawing.Font;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SharpdxControl.Control
 {
     public class DXLabel : DXControl
     {
-
+        public bool Shadow;
         public DXLabel()
         {
             BackColour = Color.Empty;
             DrawTexture = true;
             AutoSize = true;
-            Font = new Font("宋体", FontSize(8.5f), FontStyle.Regular);
+            Font = new Font("宋体", CEnvir.FontSize(8.5f), FontStyle.Regular);
             ForeColour = Color.White;
             OutlineColour = Color.FromArgb(8, 8, 8);
             Outline = true;
@@ -159,6 +163,15 @@ namespace SharpdxControl.Control
         }
 
         #endregion
+
+        public override void OnTextChanged(string oValue, string nValue)
+        {
+            base.OnTextChanged(oValue, nValue);
+
+            TextureValid = false;
+            CreateSize();
+        }
+
         #endregion
 
 
@@ -168,6 +181,77 @@ namespace SharpdxControl.Control
         {
             if (!AutoSize) return;
             Size = GetSize(Text, Font, Outline);
+        }
+        protected override void CreateTexture()
+        {
+            int width = DisplayArea.Width;
+            int height = DisplayArea.Height;
+
+            if (ControlTexture == null || DisplayArea.Size != TextureSize)
+            {
+                DisposeTexture();
+                TextureSize = DisplayArea.Size;
+                ControlTexture = new Texture(DXManager.Device, TextureSize.Width, TextureSize.Height + 1, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
+                DXManager.ControlList.Add(this);
+            }
+
+
+
+            using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, ControlTexture.LockRectangle(0, LockFlags.Discard).DataPointer))
+            using (Graphics graphics = Graphics.FromImage(image))
+            { 
+                DXManager.ConfigureGraphics(graphics);
+                graphics.Clear(base.BackColour);
+                if (Outline)
+                {
+                    if (Shadow)
+                    {
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(2, 2, width, height), Color.Black, DrawFormat);
+                        if (!string.IsNullOrEmpty(base.Text))
+                        {
+                            TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
+                        }
+                    }
+                    else if (OutlineColour != Color.Transparent)
+                    {
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
+                        if (!string.IsNullOrEmpty(base.Text))
+                        {
+                            TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(base.Text))
+                    {
+                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
+                    }
+
+                }
+                else if (!string.IsNullOrEmpty(base.Text))
+                {
+                    TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 0, width, height), base.ForeColour, DrawFormat);
+                }
+            }
+            ControlTexture.UnlockRectangle(0);
+            DXManager.Sprite.Flush();
+           
+
+            TextureValid = true;
+            ExpireTime = CEnvir.Now + Config.CacheDuration;
+        }
+        protected override void DrawControl()
+        {
+            if (!DrawTexture) return;
+
+            if (!TextureValid) CreateTexture();
+
+            DXManager.SetOpacity(Opacity);
+
+            PresentTexture(ControlTexture, Parent, DisplayArea, IsEnabled ? Color.White : Color.FromArgb(75, 75, 75), this);
+
+            ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
         #endregion
 

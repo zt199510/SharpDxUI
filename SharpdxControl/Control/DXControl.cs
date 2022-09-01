@@ -1,8 +1,8 @@
 ﻿
 
-
 using SharpDX.Direct3D9;
 using SharpdxControl.Envir;
+using SharpdxControl.SharpDXs;
 
 namespace SharpdxControl.Control
 {
@@ -67,7 +67,6 @@ namespace SharpdxControl.Control
             UpdateDisplayArea();
             UpdateBorderInformation();
             TextureValid = false;
-
             SizeChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
@@ -89,7 +88,7 @@ namespace SharpdxControl.Control
         }
         private Color _BackColour;
         public event EventHandler<EventArgs> BackColourChanged;
-        public virtual void OnBackColourChanged(Color oValue, Color nValue)
+        public virtual void OnBackColourChanged(System.Drawing.Color oValue, Color nValue)
         {
             TextureValid = false;
             BackColourChanged?.Invoke(this, EventArgs.Empty);
@@ -154,11 +153,35 @@ namespace SharpdxControl.Control
         public Size TextureSize { get; set; }
         public Surface ControlSurface { get; set; }
         public DateTime ExpireTime { get; protected set; }
+        protected virtual void CreateTexture()
+        {
+            if (ControlTexture == null || DisplayArea.Size != TextureSize)
+            {
+                DisposeTexture();
+                TextureSize = DisplayArea.Size;
+                ControlTexture = new Texture(DXManager.Device, TextureSize.Width, TextureSize.Height, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
+                ControlSurface = ControlTexture.GetSurfaceLevel(0);
+                DXManager.ControlList.Add(this);
+            }
 
+            Surface previous = DXManager.CurrentSurface;
+            DXManager.SetSurface(ControlSurface);
+
+            DXManager.Device.Clear(ClearFlags.Target, BackColour.ToRawColorBGRA(), 0, 0);
+
+            OnClearTexture();
+
+            DXManager.SetSurface(previous);
+            TextureValid = true;
+            ExpireTime = CEnvir.Now + Config.CacheDuration;
+        }
+        protected virtual void OnClearTexture()
+        {
+        }
         #endregion
 
 
-        #region ForeColour
+        #region ForeColour文本颜色
 
         public Color ForeColour
         {
@@ -182,8 +205,34 @@ namespace SharpdxControl.Control
 
         #endregion
 
+        #region Enabled
 
-        #region Location本地化
+
+
+        public bool Enabled
+        {
+            get => _Enabled;
+            set
+            {
+                if (_Enabled == value) return;
+
+                bool oldValue = _Enabled;
+                _Enabled = value;
+
+                OnEnabledChanged(oldValue, value);
+            }
+        }
+        private bool _Enabled;
+        public event EventHandler<EventArgs> EnabledChanged;
+        public virtual void OnEnabledChanged(bool oValue, bool nValue)
+        {
+            CheckIsEnabled();
+            EnabledChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region Location坐标位置
 
         public Point Location
         {
@@ -208,7 +257,7 @@ namespace SharpdxControl.Control
 
         #endregion
 
-        #region IsVisible
+        #region IsVisible是否隐藏
 
         public bool IsVisible
         {
@@ -246,8 +295,34 @@ namespace SharpdxControl.Control
 
         #endregion
 
+        #region IsEnabled
 
-        #region Opacity
+        public bool IsEnabled
+        {
+            get => _IsEnabled;
+            set
+            {
+                if (_IsEnabled == value) return;
+
+                bool oldValue = _IsEnabled;
+                _IsEnabled = value;
+
+                OnIsEnabledChanged(oldValue, value);
+            }
+        }
+        private bool _IsEnabled;
+        public event EventHandler<EventArgs> IsEnabledChanged;
+        public virtual void OnIsEnabledChanged(bool oValue, bool nValue)
+        {
+            foreach (DXControl control in Controls)
+                control.CheckIsEnabled();
+
+            IsEnabledChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region Opacity透明度
 
         public float Opacity
         {
@@ -271,6 +346,119 @@ namespace SharpdxControl.Control
 
         #endregion
 
+        #region DisplayArea
+
+        public Rectangle DisplayArea
+        {
+            get => _DisplayArea;
+            set
+            {
+                if (_DisplayArea == value) return;
+
+                Rectangle oldValue = _DisplayArea;
+                _DisplayArea = value;
+
+                OnDisplayAreaChanged(oldValue, value);
+            }
+        }
+        private Rectangle _DisplayArea;
+        public event EventHandler<EventArgs> DisplayAreaChanged;
+        public virtual void OnDisplayAreaChanged(Rectangle oValue, Rectangle nValue)
+        {
+            if (Controls == null) return;
+            foreach (DXControl control in Controls)
+                control.UpdateDisplayArea();
+
+            UpdateBorderInformation();
+            DisplayAreaChanged?.Invoke(this, EventArgs.Empty);
+        }
+        #endregion
+
+
+        #region Parent父类
+
+        public DXControl Parent
+        {
+            get => _Parent;
+            set
+            {
+                if (_Parent == value) return;
+
+                DXControl oldValue = _Parent;
+                _Parent = value;
+
+                OnParentChanged(oldValue, value);
+            }
+        }
+        private DXControl _Parent;
+        public event EventHandler<EventArgs> ParentChanged;
+        public virtual void OnParentChanged(DXControl oValue, DXControl nValue)
+        {
+            oValue?.Controls.Remove(this);
+            Parent?.Controls.Add(this);
+
+            CheckIsVisible();
+            CheckIsEnabled();
+
+            UpdateDisplayArea();
+
+            ParentChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region IsMoving
+
+        public bool IsMoving
+        {
+            get => _IsMoving;
+            set
+            {
+                if (_IsMoving == value) return;
+
+                bool oldValue = _IsMoving;
+                _IsMoving = value;
+
+                OnIsMovingChanged(oldValue, value);
+            }
+        }
+        private bool _IsMoving;
+        public event EventHandler<EventArgs> IsMovingChanged;
+        public virtual void OnIsMovingChanged(bool oValue, bool nValue)
+        {
+            if (IsMoving)
+                CEnvir.Target.SuspendLayout();
+            else
+                CEnvir.Target.ResumeLayout();
+
+            IsMovingChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region AllowDragOut
+
+        public bool AllowDragOut
+        {
+            get => _AllowDragOut;
+            set
+            {
+                if (_AllowDragOut == value) return;
+
+                bool oldValue = _AllowDragOut;
+                _AllowDragOut = value;
+
+                OnAllowDragOutChanged(oldValue, value);
+            }
+        }
+        private bool _AllowDragOut;
+        public event EventHandler<EventArgs> AllowDragOutChanged;
+        public virtual void OnAllowDragOutChanged(bool oValue, bool nValue)
+        {
+            AllowDragOutChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
 
 
         #endregion
@@ -278,7 +466,10 @@ namespace SharpdxControl.Control
         public Action ProcessAction;
         public DXControl()
         {
-
+            BackColour = Color.Empty;
+            Enabled = true;
+            Opacity = 1F;
+            ForeColour = Color.White;
         }
 
         #region Methods方法
@@ -290,66 +481,62 @@ namespace SharpdxControl.Control
             foreach (DXControl control in Controls)
             {
                 if (!control.IsVisible) continue;
-
                 control.Process();
             }
         }
 
-
         private void UpdateBorderInformation()
         {
-            //throw new NotImplementedException();
+            
         }
 
         private void UpdateDisplayArea()
         {
-            //throw new NotImplementedException();
+            Rectangle area = new Rectangle(Location, Size);
+            if (Parent != null)
+                area.Offset(Parent.DisplayArea.Location);
+
+            DisplayArea = area;
         }
-
-
 
         protected internal virtual void CheckIsVisible()
         {
-            //IsVisible = Visible && Parent != null && Parent.IsVisible;
+           
         }
         public virtual void DisposeTexture()
         {
-            //if (ControlTexture != null)
-            //{
-            //    if (!ControlTexture.Disposed)
-            //        ControlTexture.Dispose();
-
-            //    ControlTexture = null;
-            //}
-
-            //if (ControlSurface != null)
-            //{
-            //    if (!ControlSurface.Disposed)
-            //        ControlSurface.Dispose();
-
-            //    ControlSurface = null;
-            //}
-
-            //TextureSize = Size.Empty;
-            //ExpireTime = DateTime.MinValue;
             TextureValid = false;
-
             DXManager.ControlList.Remove(this);
         }
+        protected internal virtual void CheckIsEnabled()
+        {
+            try
+            {
+                IsEnabled = Enabled && (Parent == null || Parent.IsEnabled);
+            }
+            catch (Exception)
+            {
 
-
+                throw;
+            }
+        }
         #region Drawing
         public virtual void Draw()
         {
             DrawControl();
+            DrawChildControls();
         }
-
-        private void DrawControl()
+        protected virtual void DrawChildControls()
+        {
+            foreach (DXControl control in Controls)
+                control.Draw();
+        }
+        protected  virtual void DrawControl()
         {
             if (!DrawTexture) return;
             if (!TextureValid)
             {
-                //  CreateTexture();
+                  CreateTexture();
 
                 if (!TextureValid) return;
             }
@@ -359,7 +546,7 @@ namespace SharpdxControl.Control
 
             DXManager.SetOpacity(Opacity);
 
-          //  PresentTexture(ControlTexture, Parent, DisplayArea, IsEnabled ? Color.White : Color.FromArgb(75, 75, 75), this);
+            PresentTexture(ControlTexture, Parent, DisplayArea, IsEnabled ? Color.White : Color.FromArgb(75, 75, 75), this);
 
             DXManager.SetOpacity(oldOpacity);
 
@@ -368,7 +555,36 @@ namespace SharpdxControl.Control
 
         public static void PresentTexture(Texture texture, DXControl parent, Rectangle displayArea, Color colour, DXControl control, int offX = 0, int offY = 0, bool blend = false, float blendrate = 1f)
         {
+            Rectangle bounds = ActiveScene.DisplayArea;
+            Rectangle textureArea = Rectangle.Intersect(bounds, displayArea);
 
+            if (!control.IsMoving || !control.AllowDragOut)
+                while (parent != null)
+                {
+                    if (parent.IsMoving && parent.AllowDragOut)
+                    {
+                        bounds = ActiveScene.DisplayArea;
+                        textureArea = Rectangle.Intersect(bounds, displayArea);
+                        break;
+                    }
+
+                    bounds = parent.DisplayArea;
+                    textureArea = Rectangle.Intersect(bounds, textureArea);
+
+                    if (bounds.IntersectsWith(displayArea))
+                    {
+                        parent = parent.Parent;
+                        continue;
+                    }
+
+                    return;
+                }
+
+            if (textureArea.IsEmpty) return;
+
+            textureArea.Location = new Point(textureArea.X - displayArea.X, textureArea.Y - displayArea.Y);
+
+            DXManager.Sprite.Draw(texture, textureArea, SharpDX.Vector3.Zero, new SharpDX.Vector3(displayArea.X + textureArea.Location.X + offX, displayArea.Y + textureArea.Location.Y + offY, 0), colour);
         }
         #endregion
         #endregion
@@ -390,12 +606,8 @@ namespace SharpdxControl.Control
             if (disposing)
             {
                 Disposing?.Invoke(this, EventArgs.Empty);
-
                 IsDisposed = true;
                 Disposing = null;
-
-
-
                 _BackColour = Color.Empty;
                 _DrawTexture = false;
                 _Text = null;

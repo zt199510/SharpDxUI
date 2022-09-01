@@ -10,9 +10,11 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpdxControl.SharpDX;
+
 using SharpdxControl.Control;
 using Blend = SharpDX.Direct3D9.Blend;
+using SharpdxControl.SharpDXs;
+using SharpDX;
 
 namespace SharpdxControl
 {
@@ -36,11 +38,19 @@ namespace SharpdxControl
         /// </summary>
         public static Sprite Sprite { get; private set; }
 
+        public static Line Line { get; private set; }
+        public static Surface CurrentSurface { get; private set; }
+        public static Surface MainSurface { get; private set; }
+        public static Texture ScratchTexture;
+
+        public static Surface ScratchSurface;
         public static List<DXControl> ControlList { get; } = new List<DXControl>();
         // public static List<MirImage> TextureList { get; } = new List<MirImage>();
         // public static List<DXSound> SoundList { get; } = new List<DXSound>();
 
         public static float Opacity { get; private set; } = 1F;
+
+        public static Texture PoisonTexture;
         static DXManager()
         {
             Graphics = Graphics.FromHwnd(IntPtr.Zero);
@@ -98,10 +108,23 @@ namespace SharpdxControl
             //此方法允许在全屏模式应用程序中使用GDI对话框。
             Device.DialogBoxMode = true;
         }
-        private static  void LoadTextures()
+        private static unsafe void LoadTextures()
         {
             Sprite = new Sprite(Device);
-          
+            Line = new Line(Device) { Width = 1F };
+            MainSurface = Device.GetBackBuffer(0, 0);
+            CurrentSurface = MainSurface;
+            Device.SetRenderTarget(0, MainSurface);
+            PoisonTexture = new Texture(Device, 6, 6, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
+            int* data  = (int*)PoisonTexture.LockRectangle(0, LockFlags.Discard).DataPointer;
+
+ 
+            for (int y = 0; y < 6; y++)
+                for (int x = 0; x < 6; x++)
+                    data[y * 6 + x] = x == 0 || y == 0 || x == 5 || y == 5 ? -16777216 : -1;
+
+            ScratchTexture = new Texture(Device, Parameters.BackBufferWidth, Parameters.BackBufferHeight, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
+            ScratchSurface = ScratchTexture.GetSurfaceLevel(0);
         }
 
         /// <summary>
@@ -135,19 +158,28 @@ namespace SharpdxControl
                 Device.SetRenderState(RenderState.SourceBlend, Blend.BlendFactor);
                 Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
                 Device.SetRenderState(RenderState.SourceBlendAlpha, Blend.One);
-                Device.SetRenderState(RenderState.BlendFactor, Color.FromArgb(255, 255, 255, 255).ToArgb());
+                Device.SetRenderState(RenderState.BlendFactor, System.Drawing.Color.FromArgb(255, 255, 255, 255).ToArgb());
             }
             else
             {
                 Device.SetRenderState(RenderState.SourceBlend, Blend.BlendFactor);
                 Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseBlendFactor);
                 Device.SetRenderState(RenderState.SourceBlendAlpha, Blend.SourceAlpha);
-                Device.SetRenderState(RenderState.BlendFactor, Color.FromArgb((byte)(255 * opacity), (byte)(255 * opacity),
+                Device.SetRenderState(RenderState.BlendFactor, System.Drawing.Color.FromArgb((byte)(255 * opacity), (byte)(255 * opacity),
                     (byte)(255 * opacity), (byte)(255 * opacity)).ToArgb());
             }
 
             Opacity = opacity;
             Sprite.Flush();
+        }
+
+        public static void SetSurface(Surface surface)
+        {
+            if (CurrentSurface == surface) return;
+
+            Sprite.Flush();
+            CurrentSurface = surface;
+            Device.SetRenderTarget(0, surface);
         }
     }
 }

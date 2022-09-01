@@ -2,7 +2,8 @@
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
 using SharpdxControl.Control;
-using SharpdxControl.SharpDX;
+
+using SharpdxControl.SharpDXs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,13 +39,12 @@ namespace SharpdxControl.Envir
         /// </summary>
         public static Point MouseLocation;
         /// <summary>
-        /// 更新游戏状态
+        /// 更新画面状态
         /// </summary>
         static void UpdateGame()
         {
             Now = Time.Now;
             ///DXControl.ActiveScene?.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, MouseLocation.X, MouseLocation.Y, 0));
-            ///
             if (Time.Now >= _FPSTime)
             {
                 _FPSTime = Time.Now.AddSeconds(1);
@@ -69,7 +69,7 @@ namespace SharpdxControl.Envir
         }
 
         /// <summary>
-        /// 渲染游戏
+        /// 渲染画面
         /// </summary>
         static void RenderGame()
         {
@@ -82,12 +82,9 @@ namespace SharpdxControl.Envir
             DXManager.Device.Clear(ClearFlags.Target, Color.Black.ToRawColorBGRA(), 1, 0);
             DXManager.Device.BeginScene();
             DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
-
             DXControl.ActiveScene?.Draw();
-
             DXManager.Sprite.End();
             DXManager.Device.EndScene();
-
             DXManager.Device.Present();
             FPSCounter++;
         }
@@ -104,7 +101,7 @@ namespace SharpdxControl.Envir
 
 
 
-            public static float FontSize(float size)
+        public static float FontSize(float size)
         {
             try
             {

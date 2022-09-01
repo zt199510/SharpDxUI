@@ -19,16 +19,18 @@ namespace SharpdxControl.Scenes
 
         public void CreateLogin()
         {
-           var Title = new DXLabel
+            var Title = new DXLabel
             {
-                AutoSize = false,
-                Size = new Size(100, 20),
-                Location=new Point(10,10),
-                BackColour = Color.Wheat,
-                Outline = false,
+                Location = new Point(10, 10),
                 Text = "聊天设置",
-                Font = new Font("宋体", CEnvir.FontSize(9f), FontStyle.Bold),
-                DrawFormat = (TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter)
+                Parent = this,
+            };
+
+            new DXLabel
+            {
+                Location = new Point(Title.Location.X + Title.DisplayArea.Width + 20, 20),
+                Text = "聊天设置123123",
+                Parent = this,
             };
         }
 
