@@ -146,6 +146,39 @@ namespace SharpdxControl.Control
 
         #endregion
 
+        #region IsControl
+
+        public bool IsControl
+        {
+            get => _IsControl;
+            set
+            {
+                if (_IsControl == value) return;
+
+                bool oldValue = _IsControl;
+                _IsControl = value;
+
+                OnIsControlChanged(oldValue, value);
+            }
+        }
+        private bool _IsControl;
+        public event EventHandler<EventArgs> IsControlChanged;
+        public virtual void OnIsControlChanged(bool oValue, bool nValue)
+        {
+            if (!IsControl)
+            {
+                //if (FocusControl == this)
+                //    FocusControl = null;
+
+                //if (MouseControl == this)
+                //    MouseControl = null;
+            }
+
+            IsControlChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
         #region Texture文本
 
         public bool TextureValid { get; set; }//纹理
