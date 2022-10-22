@@ -18,12 +18,10 @@ namespace MirTest
         [STAThread]
         static void Main()
         {
-
             SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             CEnvir.Target = new TargetForm();//实例化窗口
-
             DXManager.Create();//创建画面管理
             CEnvir.Target.MaximizeBox = true;
             CEnvir.Target.FormBorderStyle = FormBorderStyle.Fixed3D;

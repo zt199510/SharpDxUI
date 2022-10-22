@@ -1,16 +1,7 @@
 ﻿using SharpDX.Direct3D9;
 using SharpdxControl.Envir;
-using System;
-using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-
-using System.Drawing.Imaging;
-
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using SharpdxControl.Control;
 using Blend = SharpDX.Direct3D9.Blend;
 using SharpdxControl.SharpDXs;
@@ -32,7 +23,6 @@ namespace SharpdxControl
         public static PresentParameters Parameters { get; private set; }
         //显示适配器性能
         public static Device Device { get; private set; }
-
         /// <summary>
         /// 精灵图片
         /// </summary>
@@ -84,7 +74,6 @@ namespace SharpdxControl
             graphics.TextContrast = 0;//灰度校正
         }
 
-
         public static void Create()
         {
             PresentParameters obj = new PresentParameters
@@ -96,7 +85,6 @@ namespace SharpdxControl
             };
             ///性能模式选择
             obj.PresentationInterval = PresentInterval.Immediate;
-
             obj.BackBufferWidth = CEnvir.Target.ClientSize.Width;
             obj.BackBufferHeight = CEnvir.Target.ClientSize.Height;
             obj.PresentFlags = PresentFlags.LockableBackBuffer;
@@ -118,7 +106,7 @@ namespace SharpdxControl
             PoisonTexture = new Texture(Device, 6, 6, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
             int* data  = (int*)PoisonTexture.LockRectangle(0, LockFlags.Discard).DataPointer;
 
- 
+
             for (int y = 0; y < 6; y++)
                 for (int x = 0; x < 6; x++)
                     data[y * 6 + x] = x == 0 || y == 0 || x == 5 || y == 5 ? -16777216 : -1;

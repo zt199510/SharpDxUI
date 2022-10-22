@@ -95,121 +95,7 @@ namespace SharpdxControl.Control
         /// </summary>
         static DXControl()
         {
-            //DebugLabel = new DXLabel
-            //{
-            //    //IsVisible = false,
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(40, 1),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.Yellow,
-            //};
-            //HintLabel = new DXLabel
-            //{
-            //    BackColour = Color.FromArgb(220, 255, 255, 148),
-            //    IsVisible = true,
-            //    Outline = false,
-            //    ForeColour = Color.Black,
-
-            //};
-            //PingLabel = new DXLabel
-            //{
-            //    // BackColour = Color.FromArgb(125, 50, 50, 50),
-            //    // Border = true,
-            //    //BorderColour = Color.Black,
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(5, 0),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.Yellow,
-            //};
-
-
-            /////人物攻击状态
-            //AttackModeLabel = new DXLabel
-            //{
-            //    IsControl = false,
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(5, 0),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.Yellow,
-
-            //};
-            //////宠物状态
-            //PetModeLabel = new DXLabel
-            //{
-            //    IsControl = false,
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(5, 0),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.Yellow,
-            //};
-
-
-            //JJLabel = new DXLabel
-            //{
-            //    IsControl = false,
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(5, 0),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.Yellow,
-            //};
-
-            //NowLabel = new DXLabel
-            //{
-
-            //    OutlineColour = Color.Black,
-            //    Location = new Point(150, 0),
-            //    IsVisible = Config.DebugLabel,
-            //    Outline = true,
-            //    ForeColour = Color.White,
-            //};
-
-            //TargetLabel = new DXLabel
-            //{
-            //    BackColour = Color.Empty,
-            //    ForeColour = Color.LawnGreen,
-            //    Outline = true,
-            //    OutlineColour = Color.Black,
-            //    IsControl = false,
-            //    IsVisible = true,
-            //    Location = new Point(0, 200)
-            //};
-
-
-            //FightImg = new DXImageControl
-            //{
-            //    LibraryFile = LibraryFile.ProgUse,
-            //    Index = -1,
-            //    IsVisible = true,
-            //    IsControl = false
-            //};
-
-
-            //CEnvir.LibraryList.TryGetValue(LibraryFile.Interface, out InterfaceLibrary);
-
-            //if (InterfaceLibrary == null) return;
-
-            //DefaultHeight = InterfaceLibrary.GetSize(16).Height;
-            //TabHeight = InterfaceLibrary.GetSize(19).Height;
-            //SmallButtonHeight = InterfaceLibrary.GetSize(41).Height;
-
-            //HeaderBarSize = InterfaceLibrary.GetSize(0).Height;
-
-            //HeaderSize = HeaderBarSize;
-            //HeaderSize += InterfaceLibrary.GetSize(3).Height;
-
-            //NoFooterSize = InterfaceLibrary.GetSize(2).Height;
-
-            //FooterSize = HeaderBarSize;
-            //FooterSize += InterfaceLibrary.GetSize(2).Height;
-            //FooterSize += InterfaceLibrary.GetSize(10).Height;
-            //CEnvir.LibraryList.TryGetValue(LibraryFile.Interface, out InterfaceLibrary);
-            //if (InterfaceLibrary != null)
-            //    CEnvir.LibraryList.TryGetValue(LibraryFile.GameInter, out GameInterEILibrary);
+            
         }
 
         #endregion
@@ -1717,7 +1603,6 @@ namespace SharpdxControl.Control
         public virtual void Draw()
         {
             if (!IsVisible || DisplayArea.Width <= 0 || DisplayArea.Height <= 0) return;
-
             OnBeforeDraw();
             DrawControl();
             OnBeforeChildrenDraw();

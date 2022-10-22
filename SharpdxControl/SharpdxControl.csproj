@@ -11,10 +11,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="DSoft.SharpDX.Desktop" Version="4.2.1" />
-		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
 		<PackageReference Include="SharpDX.DirectSound" Version="4.2.0" />
-		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

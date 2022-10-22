@@ -10,8 +10,6 @@ namespace SharpdxControl.SharpDXs
 {
     public static class ColorEx
     {
-       
-
         public static RawColorBGRA ToRawColorBGRA(this System.Drawing.Color color)
         {
             return new RawColorBGRA(color.B, color.G, color.R, color.A);
