@@ -1,6 +1,5 @@
 ﻿
-
-using Client.Controls;
+using Library;
 using SharpdxControl.Envir;
 using System.Windows.Forms;
 
@@ -40,8 +39,8 @@ namespace SharpdxControl.Control
 
             if (!IsVisible) return;
 
-            foreach (DXComboBox box in DXComboBox.ComboBoxes)
-                box.ListBox.Parent = this;
+            //foreach (DXComboBox box in DXComboBox.ComboBoxes)
+            //    box.ListBox.Parent = this;
         }
         #endregion
 
@@ -66,20 +65,20 @@ namespace SharpdxControl.Control
                 base.OnMouseDown(e);
 
 
-            DXControl listbox = MouseControl;
+            //DXControl listbox = MouseControl;
 
-            while (listbox != null)
-            {
-                if (listbox is DXListBox) break;
+            //while (listbox != null)
+            //{
+            //    if (listbox is DXListBox) break;
 
-                listbox = listbox.Parent;
-            }
+            //    listbox = listbox.Parent;
+            //}
 
-            foreach (DXComboBox box in DXComboBox.ComboBoxes)
-            {
-                if (box.ListBox != listbox)
-                    box.Showing = false;
-            }
+            //foreach (DXComboBox box in DXComboBox.ComboBoxes)
+            //{
+            //    if (box.ListBox != listbox)
+            //        box.Showing = false;
+            //}
         }
         public override void OnMouseUp(MouseEventArgs e)
         {
@@ -94,8 +93,8 @@ namespace SharpdxControl.Control
         {
             if (!IsEnabled) return;
 
-            if (FocusControl != null && FocusControl != this && FocusControl is MapControl)
-                FocusControl.OnMouseMove(e);
+            //if (FocusControl != null && FocusControl != this && FocusControl is MapControl)
+            //    FocusControl.OnMouseMove(e);
             else if (MouseControl != null && MouseControl != this && (MouseControl.IsMoving || MouseControl.IsResizing))
                 MouseControl.OnMouseMove(e);
             else

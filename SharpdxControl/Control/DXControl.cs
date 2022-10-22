@@ -11,6 +11,9 @@ using SharpDX.Direct3D9;
 using SharpdxControl.Control;
 using SharpdxControl.Envir;
 using SharpdxControl;
+using SharpdxControl.SharpDXs;
+using System.Numerics;
+
 
 
 //Cleaned
@@ -917,25 +920,25 @@ namespace SharpdxControl.Control
 
         #region Sound
 
-        public SoundIndex Sound
-        {
-            get => _Sound;
-            set
-            {
-                if (_Sound == value) return;
+        //public SoundIndex Sound
+        //{
+        //    get => _Sound;
+        //    set
+        //    {
+        //        if (_Sound == value) return;
 
-                SoundIndex oldValue = _Sound;
-                _Sound = value;
+        //        SoundIndex oldValue = _Sound;
+        //        _Sound = value;
 
-                OnSoundChanged(oldValue, value);
-            }
-        }
-        private SoundIndex _Sound;
-        public event EventHandler<EventArgs> SoundChanged;
-        public virtual void OnSoundChanged(SoundIndex oValue, SoundIndex nValue)
-        {
-            SoundChanged?.Invoke(this, EventArgs.Empty);
-        }
+        //        OnSoundChanged(oldValue, value);
+        //    }
+        //}
+        //private SoundIndex _Sound;
+        //public event EventHandler<EventArgs> SoundChanged;
+        //public virtual void OnSoundChanged(SoundIndex oValue, SoundIndex nValue)
+        //{
+        //    SoundChanged?.Invoke(this, EventArgs.Empty);
+        //}
 
         #endregion
 
@@ -1157,7 +1160,7 @@ namespace SharpdxControl.Control
             Surface previous = DXManager.CurrentSurface;
             DXManager.SetSurface(ControlSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, BackColour, 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, BackColour.ToRawColorBGRA(), 0, 0);
 
             OnClearTexture();
 
@@ -1172,7 +1175,7 @@ namespace SharpdxControl.Control
         {
             if (ControlTexture != null)
             {
-                if (!ControlTexture.Disposed)
+                if (!ControlTexture.IsDisposed)
                     ControlTexture.Dispose();
 
                 ControlTexture = null;
@@ -1180,7 +1183,7 @@ namespace SharpdxControl.Control
 
             if (ControlSurface != null)
             {
-                if (!ControlSurface.Disposed)
+                if (!ControlSurface.IsDisposed)
                     ControlSurface.Dispose();
 
                 ControlSurface = null;
@@ -1526,7 +1529,8 @@ namespace SharpdxControl.Control
                 if (!AllowDragOut && !IgnoreMoveBounds)
                 {
                     if (Parent == null) return;
-                    bool flag5 = GameScene.Game != null;
+                    // bool flag5 = GameScene.Game != null;
+                     bool flag5 = false;
 
                     if (tempPoint.X + DisplayArea.Width > Parent.DisplayArea.Width)
                     {
@@ -1696,8 +1700,8 @@ namespace SharpdxControl.Control
         {
             if (!IsEnabled) return;
 
-            if (Sound != SoundIndex.None)
-                DXSoundManager.Play(Sound);
+            //if (Sound != SoundIndex.None)
+            //    DXSoundManager.Play(Sound);
 
             MouseClick?.Invoke(this, e);
         }
@@ -1708,8 +1712,8 @@ namespace SharpdxControl.Control
 
             if (MouseDoubleClick != null)
             {
-                if (Sound != SoundIndex.None)
-                    DXSoundManager.Play(Sound);
+                //if (Sound != SoundIndex.None)
+                //    DXSoundManager.Play(Sound);
 
                 MouseDoubleClick?.Invoke(this, e);
             }
@@ -1838,9 +1842,9 @@ namespace SharpdxControl.Control
             Surface old = DXManager.CurrentSurface;
             DXManager.SetSurface(DXManager.ScratchSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, 0, 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, BorderColour.ToRawColorBGRA(), 0, 0);
 
-            DXManager.Line.Draw(BorderInformation, BorderColour);
+            DXManager.Line.Draw(BorderInformation, BorderColour.ToRawColorBGRA());
 
             DXManager.SetSurface(old);
 
@@ -1908,8 +1912,7 @@ namespace SharpdxControl.Control
 
             textureArea.Location = new Point(textureArea.X - displayArea.X, textureArea.Y - displayArea.Y);
 
-            DXManager.Sprite.Draw(texture, textureArea, Vector3.Zero, new Vector3(displayArea.X + textureArea.Location.X + offX, displayArea.Y + textureArea.Location.Y + offY, 0), colour);
-
+            DXManager.Sprite.Draw(texture, textureArea, SharpDX.Vector3.Zero, new SharpDX.Vector3(displayArea.X + textureArea.Location.X + offX, displayArea.Y + textureArea.Location.Y + offY, 0), colour);
         }
 
 
@@ -1976,7 +1979,7 @@ namespace SharpdxControl.Control
                 _PassThrough = false;
                 _Size = Size.Empty;
                 _Sort = false;
-                _Sound = SoundIndex.None;
+               // _Sound = SoundIndex.None;
                 _Tag = null;
                 _Text = null;
                 _Visible = false;
@@ -2018,7 +2021,7 @@ namespace SharpdxControl.Control
                 PassThroughChanged = null;
                 SizeChanged = null;
                 SortChanged = null;
-                SoundChanged = null;
+                //SoundChanged = null;
                 TextChanged = null;
                 VisibleChanged = null;
                 IsEnabledChanged = null;
