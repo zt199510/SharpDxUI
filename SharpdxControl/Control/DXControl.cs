@@ -3,25 +3,66 @@
 using SharpDX.Direct3D9;
 using SharpdxControl.Envir;
 using SharpdxControl.SharpDXs;
+using System.ComponentModel;
+using System.Windows.Controls;
 
 namespace SharpdxControl.Control
 {
+    public enum ChatType
+    {
+        [Description("空")]
+        None,
+        [Description("用户")]
+        User,
+        [Description("系统")]
+        System,
+        [Description("所有")]
+        All
+    }
+
     public class DXControl : IDisposable
     {
         #region 全局变量(static)
-        public static float FontSize(float size)
+
+        public static List<DXControl> MessageBoxList = new List<DXControl>();
+        public static DXControl MouseControl
         {
-            try
+            get => _MouseControl;
+            set
             {
-                return (size - 0.0F) * (96F / DXManager.Graphics.DpiX);
-            }
-            catch (Exception)
-            {
+                if (_MouseControl == value) return;
 
-                return (size - 0.0F) * (96F / 96);
-            }
+                DXControl oldControl = _MouseControl;
+                _MouseControl = value;
 
+                oldControl?.OnMouseLeave();
+
+                _MouseControl?.OnMouseEnter();
+            }
         }
+        private static DXControl _MouseControl;
+
+        public static DXControl FocusControl
+        {
+            get => _FocusControl;
+            set
+            {
+                if (_FocusControl == value) return;
+
+                DXControl oldControl = _FocusControl;
+                _FocusControl = value;
+                oldControl?.OnLostFocus();
+
+                _FocusControl?.OnFocus();
+
+                //DXTextBox control = value as DXTextBox;
+
+                //if (DXTextBox.ActiveTextBox != null && DXTextBox.ActiveTextBox.KeepFocus && control == null) return;
+
+                //DXTextBox.ActiveTextBox = value as DXTextBox;
+            }
+        }
+        private static DXControl _FocusControl;
 
         public static DXScene ActiveScene //当前激活画质
         {
@@ -36,6 +77,23 @@ namespace SharpdxControl.Control
             }
         }
         private static DXScene _ActiveScene;
+
+
+        public static float FontSize(float size)
+        {
+            try
+            {
+                return (size - 0.0F) * (96F / DXManager.Graphics.DpiX);
+            }
+            catch (Exception)
+            {
+
+                return (size - 0.0F) * (96F / 96);
+            }
+
+        }
+
+      
         #endregion
 
 
@@ -493,8 +551,37 @@ namespace SharpdxControl.Control
 
         #endregion
 
+        #region IsResizing
+
+        public bool IsResizing
+        {
+            get => _IsResizing;
+            set
+            {
+                if (_IsResizing == value) return;
+
+                bool oldValue = _IsResizing;
+                _IsResizing = value;
+
+                OnIsResizingChanged(oldValue, value);
+            }
+        }
+        private bool _IsResizing;
+        public event EventHandler<EventArgs> IsResizingChanged;
+        public virtual void OnIsResizingChanged(bool oValue, bool nValue)
+        {
+            IsResizingChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         #endregion
+
+        #endregion
+        public event EventHandler<EventArgs> MouseEnter, MouseLeave, Focus, LostFocus;
+
+        public const int ResizeBuffer = 9;
+        protected internal Point MovePoint;
+        private Point ResizePoint;
+        public bool ResizeLeft, ResizeRight, ResizeUp, ResizeDown;
 
         public Action ProcessAction;
         public DXControl()
@@ -504,6 +591,54 @@ namespace SharpdxControl.Control
             Opacity = 1F;
             ForeColour = Color.White;
         }
+
+
+
+        #region MouseMethods方法
+
+
+        public virtual void OnMouseEnter()
+        {
+            if (!IsEnabled) return;
+
+            MouseEnter?.Invoke(this, EventArgs.Empty);
+        }
+        public virtual void OnMouseLeave()
+        {
+            if (!IsEnabled) return;
+
+            MouseLeave?.Invoke(this, EventArgs.Empty);
+        }
+        public virtual void OnFocus()
+        {
+            IsMoving = false;
+            ResizePoint = Point.Empty;
+            MovePoint = Point.Empty;
+
+            Focus?.Invoke(this, EventArgs.Empty);
+        }
+        public virtual void OnLostFocus()
+        {
+            if (IsMoving)
+            {
+                IsMoving = false;
+                MovePoint = Point.Empty;
+            }
+
+            if (IsResizing)
+            {
+                IsResizing = false;
+                ResizeLeft = false;
+                ResizeRight = false;
+                ResizeUp = false;
+                ResizeDown = false;
+                ResizePoint = Point.Empty;
+            }
+
+            LostFocus?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
 
         #region Methods方法
 
@@ -642,7 +777,23 @@ namespace SharpdxControl.Control
                 IsDisposed = true;
                 Disposing = null;
                 _BackColour = Color.Empty;
+                _AllowDragOut = false;
+                _BackColour = Color.Empty;
                 _DrawTexture = false;
+                _DisplayArea = Rectangle.Empty;
+                _Enabled = false;
+                _ForeColour = Color.Empty;
+                _IsControl = false;
+                _Location = Point.Empty;
+                _Opacity = 0F;
+                _Parent?.Controls.Remove(this);
+                _Parent = null;
+                _Size = Size.Empty;
+                _Text = null;
+                _IsEnabled = false;
+                _IsVisible = false;
+                _IsMoving = false;
+                _IsResizing = false;
                 _Text = null;
                 _ForeColour = Color.Empty;
                 _Size = Size.Empty;
@@ -651,8 +802,13 @@ namespace SharpdxControl.Control
                 DrawTextureChanged = null;
                 BackColourChanged = null;
                 ForeColourChanged = null;
+                ProcessAction = null;
             }
-            ProcessAction = null;
+          
+
+            if (_MouseControl == this) _MouseControl = null;
+            if (_FocusControl == this) _FocusControl = null;
+            if (_ActiveScene == this) _ActiveScene = null;
         }
 
         ~DXControl()
