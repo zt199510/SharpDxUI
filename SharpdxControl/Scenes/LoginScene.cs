@@ -16,7 +16,6 @@ namespace SharpdxControl.Scenes
             CreateLogin();
         }
 
-
         public void CreateLogin()
         {
             var Title = new DXLabel
@@ -33,7 +32,6 @@ namespace SharpdxControl.Scenes
                 Parent = this,
             };
         }
-
 
         public override void Process()
         {

@@ -1,37 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Windows.Forms;
-
-using Library;
+﻿using System.ComponentModel;
 using SharpDX.Direct3D9;
-using SharpdxControl.Control;
 using SharpdxControl.Envir;
-using SharpdxControl;
 using SharpdxControl.SharpDXs;
 using System.Numerics;
 
-
-
-//Cleaned
 namespace SharpdxControl.Control
 {
+    public enum ChatType
+    {
+        [Description("空")]
+        None,
+        [Description("用户")]
+        User,
+        [Description("系统")]
+        System,
+        [Description("所有")]
+        All
+    }
+
     public class DXControl : IDisposable
     {
-        public enum ChatType
-        {
-            [Description("空")]
-            None,
-            [Description("用户")]
-            User,
-            [Description("系统")]
-            System,
-            [Description("所有")]
-            All
-        }
+
         #region Static
         public static List<DXControl> MessageBoxList = new List<DXControl>();
 
@@ -95,20 +84,17 @@ namespace SharpdxControl.Control
         public static int FooterSize { get; }
         public static int NoFooterSize { get; }
         public static int SmallButtonHeight { get; }
-     /// <summary>
-     ///   public static DXImageControl FightImg;
-     /// </summary>
-
+        /// <summary>
+        ///   public static DXImageControl FightImg;
+        /// </summary>
         public static DXLabel DebugLabel, HintLabel, PingLabel, NowLabel, AttackModeLabel, PetModeLabel, JJLabel, TargetLabel;
-    //    protected static MirLibrary InterfaceLibrary;
+        //    protected static MirLibrary InterfaceLibrary;
 
         /// <summary>
         /// 底色
         /// </summary>
         static DXControl()
-
         {
-
             //DebugLabel = new DXLabel
             //{
             //    //IsVisible = false,
@@ -229,7 +215,7 @@ namespace SharpdxControl.Control
         #endregion
 
         #region Properties
-      //  protected static MirLibrary GameInterEILibrary;
+        //  protected static MirLibrary GameInterEILibrary;
         protected internal List<DXControl> Controls { get; private set; } = new List<DXControl>();
 
         #region AllowDragOut
@@ -553,82 +539,6 @@ namespace SharpdxControl.Control
             ForeColourChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        #endregion
-
-        #region Mold
-        private ChatType m_InstanceCode;
-        public ChatType Mold
-        {
-            get
-            {
-                return m_InstanceCode;
-            }
-            set
-            {
-                if (m_InstanceCode != value)
-                {
-                    ChatType instanceCode = m_InstanceCode;
-                    m_InstanceCode = value;
-                    //On_MoldChanged(instanceCode, value);
-                }
-            }
-        }
-
-        #endregion
-
-        #region IsChat
-
-        public EventHandler<EventArgs> attributeCode;
-        private bool _ParamCode;
-        public bool IsChat
-        {
-            get
-            {
-                return _ParamCode;
-            }
-            set
-            {
-                if (_ParamCode != value)
-                {
-                    bool paramCode = _ParamCode;
-                    _ParamCode = value;
-                    OnIsChatChanged(paramCode, value);
-                }
-            }
-        }
-        public virtual void OnIsChatChanged(bool compareinfo, bool ignoreselection)
-        {
-            attributeCode?.Invoke(this, EventArgs.Empty);
-        }
-        public event EventHandler<EventArgs> IsChatChanged
-        {
-            [CompilerGenerated]
-            add
-            {
-                EventHandler<EventArgs> eventHandler = attributeCode;
-                EventHandler<EventArgs> eventHandler2;
-                do
-                {
-                    eventHandler2 = eventHandler;
-                    EventHandler<EventArgs> value2 = (EventHandler<EventArgs>)Delegate.Combine(eventHandler2, value);
-                    eventHandler = Interlocked.CompareExchange(ref attributeCode, value2, eventHandler2);
-                }
-                while ((object)eventHandler != eventHandler2);
-            }
-            [CompilerGenerated]
-            remove
-            {
-                EventHandler<EventArgs> eventHandler = attributeCode;
-                EventHandler<EventArgs> eventHandler2;
-                do
-                {
-                    eventHandler2 = eventHandler;
-                    EventHandler<EventArgs> value2 = (EventHandler<EventArgs>)Delegate.Remove(eventHandler2, value);
-                    eventHandler = Interlocked.CompareExchange(ref attributeCode, value2, eventHandler2);
-                }
-                while ((object)eventHandler != eventHandler2);
-            }
-        }
         #endregion
 
         #region Hint
@@ -1530,7 +1440,7 @@ namespace SharpdxControl.Control
                 {
                     if (Parent == null) return;
                     // bool flag5 = GameScene.Game != null;
-                     bool flag5 = false;
+                    bool flag5 = false;
 
                     if (tempPoint.X + DisplayArea.Width > Parent.DisplayArea.Width)
                     {
@@ -1979,7 +1889,7 @@ namespace SharpdxControl.Control
                 _PassThrough = false;
                 _Size = Size.Empty;
                 _Sort = false;
-               // _Sound = SoundIndex.None;
+                // _Sound = SoundIndex.None;
                 _Tag = null;
                 _Text = null;
                 _Visible = false;
