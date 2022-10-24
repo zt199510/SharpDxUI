@@ -20,7 +20,6 @@ namespace SharpdxControl.Controls
 
     public class DXControl : IDisposable
     {
-
         #region Static
         public static List<DXControl> MessageBoxList = new List<DXControl>();
 
@@ -84,24 +83,67 @@ namespace SharpdxControl.Controls
         public static int FooterSize { get; }
         public static int NoFooterSize { get; }
         public static int SmallButtonHeight { get; }
-        /// <summary>
-        ///   public static DXImageControl FightImg;
-        /// </summary>
-        public static DXLabel DebugLabel, HintLabel, PingLabel, NowLabel, AttackModeLabel, PetModeLabel, JJLabel, TargetLabel;
-        //    protected static MirLibrary InterfaceLibrary;
 
-        /// <summary>
-        /// 底色
-        /// </summary>
+        public static DXLabel DebugLabel, HintLabel, PingLabel;
+      //  protected static MirLibrary InterfaceLibrary;
+
         static DXControl()
         {
-            
+            //DebugLabel = new DXLabel
+            //{
+            //    BackColour = Color.FromArgb(125, 50, 50, 50),
+            //    Border = true,
+            //    BorderColour = Color.Black,
+            //    Location = new Point(5, 5),
+            //    IsVisible = Config.DebugLabel,
+            //    Outline = false,
+            //    ForeColour = Color.White,
+            //};
+            //HintLabel = new DXLabel
+            //{
+            //    BackColour = Color.FromArgb(120, 0, 0, 0),
+            //    Border = true,
+            //    BorderColour = Color.Yellow,
+            //    IsVisible = true,
+            //    Outline = false,
+            //    ForeColour = Color.Yellow
+            //};
+            //PingLabel = new DXLabel
+            //{
+            //    BackColour = Color.FromArgb(125, 50, 50, 50),
+            //    Border = true,
+            //    BorderColour = Color.Black,
+            //    Location = new Point(5, 19),
+            //    IsVisible = Config.DebugLabel,
+            //    Outline = false,
+            //    ForeColour = Color.White,
+            //};
+
+            //CEnvir.LibraryList.TryGetValue(LibraryFile.Interface, out InterfaceLibrary);
+
+            //if (InterfaceLibrary == null) return;
+
+            //DefaultHeight = InterfaceLibrary.GetSize(16).Height;
+            //TabHeight = InterfaceLibrary.GetSize(19).Height;
+            //SmallButtonHeight = InterfaceLibrary.GetSize(41).Height;
+
+            //HeaderBarSize = InterfaceLibrary.GetSize(0).Height;
+
+            //HeaderSize = HeaderBarSize;
+            //HeaderSize += InterfaceLibrary.GetSize(3).Height;
+
+            //NoFooterSize = InterfaceLibrary.GetSize(2).Height;
+
+            //FooterSize = HeaderBarSize;
+            //FooterSize += InterfaceLibrary.GetSize(2).Height;
+            //FooterSize += InterfaceLibrary.GetSize(10).Height;
+
         }
 
         #endregion
 
         #region Properties
-        //  protected static MirLibrary GameInterEILibrary;
+
         protected internal List<DXControl> Controls { get; private set; } = new List<DXControl>();
 
         #region AllowDragOut
@@ -366,7 +408,6 @@ namespace SharpdxControl.Controls
         public event EventHandler<EventArgs> DisplayAreaChanged;
         public virtual void OnDisplayAreaChanged(Rectangle oValue, Rectangle nValue)
         {
-            if (Controls == null) return;
             foreach (DXControl control in Controls)
                 control.UpdateDisplayArea();
 
@@ -377,8 +418,6 @@ namespace SharpdxControl.Controls
         #endregion
 
         #region Enabled
-
-
 
         public bool Enabled
         {
@@ -962,6 +1001,7 @@ namespace SharpdxControl.Controls
 
             DXManager.SetSurface(previous);
             TextureValid = true;
+
             ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
         protected virtual void OnClearTexture()
@@ -1016,9 +1056,6 @@ namespace SharpdxControl.Controls
         }
 
         #region Methods
-
-
-
         public virtual void Process()
         {
             ProcessAction?.Invoke();
@@ -1032,11 +1069,6 @@ namespace SharpdxControl.Controls
         }
 
 
-
-
-        /// <summary>
-        /// 按钮、
-        /// </summary>
         protected internal virtual void UpdateBorderInformation()
         {
             BorderInformation = null;
@@ -1067,15 +1099,7 @@ namespace SharpdxControl.Controls
         }
         protected internal virtual void CheckIsEnabled()
         {
-            try
-            {
-                IsEnabled = Enabled && (Parent == null || Parent.IsEnabled);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            IsEnabled = Enabled && (Parent == null || Parent.IsEnabled);
         }
         protected internal virtual void UpdateDisplayArea()
         {
@@ -1276,6 +1300,8 @@ namespace SharpdxControl.Controls
                 }
                 Location = nLocation;
                 Size = nSize;
+
+
             }
             else if (AllowResize)
             {
@@ -1325,67 +1351,16 @@ namespace SharpdxControl.Controls
                 if (!AllowDragOut && !IgnoreMoveBounds)
                 {
                     if (Parent == null) return;
-                    // bool flag5 = GameScene.Game != null;
-                    bool flag5 = false;
-
-                    if (tempPoint.X + DisplayArea.Width > Parent.DisplayArea.Width)
-                    {
-                        if (this is DXButton)
-                        {
-                            tempPoint.X = (flag5 ? Math.Min(Parent.DisplayArea.Width - this.Size.Width, tempPoint.X) : (Parent.DisplayArea.Width - DisplayArea.Width));
-                        }
-                        else
-                        {
-                            tempPoint.X = (flag5 ? Math.Min(Parent.DisplayArea.Width - 30, tempPoint.X) : (Parent.DisplayArea.Width - DisplayArea.Width));
-                        }
 
 
-                    }
-                    if (tempPoint.Y + DisplayArea.Height > Parent.DisplayArea.Height)
-                    {
-                        tempPoint.Y = (flag5 ? Math.Min(Parent.DisplayArea.Height - 30, tempPoint.Y) : (Parent.DisplayArea.Height - DisplayArea.Height));
-                    }
+                    if (tempPoint.X + DisplayArea.Width > Parent.DisplayArea.Width) tempPoint.X = Parent.DisplayArea.Width - DisplayArea.Width;
+                    if (tempPoint.Y + DisplayArea.Height > Parent.DisplayArea.Height) tempPoint.Y = Parent.DisplayArea.Height - DisplayArea.Height;
 
-
-
-                    if (tempPoint.X < 0)
-                    {
-                        int x;
-                        if (!flag5)
-                        {
-                            tempPoint.X = 0;
-                            x = 0;
-                        }
-                        else
-                        {
-                            if (this is DXButton)
-                            {
-                                tempPoint.X = 0;
-                                x = 0;
-                            }
-                            else
-                            {
-                                x = Math.Max(-DisplayArea.Width + 30, tempPoint.X);
-                            }
-
-                        }
-                        tempPoint.X = x;
-                    }
-                    if (tempPoint.Y < 0)
-                    {
-                        int y;
-                        if (!flag5)
-                        {
-                            tempPoint.Y = 0;
-                            y = 0;
-                        }
-                        else
-                        {
-                            y = Math.Max(-DisplayArea.Height + 30, tempPoint.Y);
-                        }
-                        tempPoint.Y = y;
-                    }
+                    if (tempPoint.X < 0) tempPoint.X = 0;
+                    if (tempPoint.Y < 0) tempPoint.Y = 0;
                 }
+
+                //clipping here for tear off
 
                 if (Tag is Size)
                 {
@@ -1603,6 +1578,7 @@ namespace SharpdxControl.Controls
         public virtual void Draw()
         {
             if (!IsVisible || DisplayArea.Width <= 0 || DisplayArea.Height <= 0) return;
+
             OnBeforeDraw();
             DrawControl();
             OnBeforeChildrenDraw();
@@ -1623,10 +1599,6 @@ namespace SharpdxControl.Controls
         {
             AfterDraw?.Invoke(this, EventArgs.Empty);
         }
-
-        /// <summary>
-        /// 绘制边框
-        /// </summary>
         protected virtual void DrawBorder()
         {
             if (!Border || BorderInformation == null) return;
@@ -1637,22 +1609,21 @@ namespace SharpdxControl.Controls
             Surface old = DXManager.CurrentSurface;
             DXManager.SetSurface(DXManager.ScratchSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, BorderColour.ToRawColorBGRA(), 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, 0, 0, 0);
 
             DXManager.Line.Draw(BorderInformation, BorderColour.ToRawColorBGRA());
 
             DXManager.SetSurface(old);
 
             PresentTexture(DXManager.ScratchTexture, Parent, Rectangle.Inflate(DisplayArea, 1, 1), Color.White, this);
-
-
         }
 
         protected virtual void DrawChildControls()
         {
             foreach (DXControl control in Controls)
+            {
                 control.Draw();
-
+            }
         }
         protected virtual void DrawControl()
         {
@@ -1676,7 +1647,7 @@ namespace SharpdxControl.Controls
             ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
 
-        public static void PresentTexture(Texture texture, DXControl parent, Rectangle displayArea, Color colour, DXControl control, int offX = 0, int offY = 0, bool blend = false, float blendrate = 1f)
+        public static void PresentTexture(Texture texture, DXControl parent, Rectangle displayArea, Color colour, DXControl control, int offX = 0, int offY = 0, float scale = 1.0f)
         {
             Rectangle bounds = ActiveScene.DisplayArea;
             Rectangle textureArea = Rectangle.Intersect(bounds, displayArea);
@@ -1707,9 +1678,18 @@ namespace SharpdxControl.Controls
 
             textureArea.Location = new Point(textureArea.X - displayArea.X, textureArea.Y - displayArea.Y);
 
-            DXManager.Sprite.Draw(texture, textureArea, SharpDX.Vector3.Zero, new SharpDX.Vector3(displayArea.X + textureArea.Location.X + offX, displayArea.Y + textureArea.Location.Y + offY, 0), colour);
-        }
+            float fX = displayArea.X + textureArea.Location.X + offX;
+            float fY = displayArea.Y + textureArea.Location.Y + offY;
 
+            fX /= scale;
+            fY /= scale;
+
+            DXManager.Sprite.Transform = Matrix.Scaling(scale, scale, 1);
+
+            DXManager.Sprite.Draw(texture, textureArea., Vector3.Zero, new Vector3(fX, fY, 0), colour);
+
+            DXManager.Sprite.Transform = Matrix.Identity;
+        }
 
         #endregion
 
@@ -1719,9 +1699,6 @@ namespace SharpdxControl.Controls
 
         public event EventHandler Disposing;
         public bool IsDisposed { get; private set; }
-
-        public bool GrayScale;
-
         public void Dispose()
         {
             Dispose(!IsDisposed);
@@ -1774,7 +1751,7 @@ namespace SharpdxControl.Controls
                 _PassThrough = false;
                 _Size = Size.Empty;
                 _Sort = false;
-                // _Sound = SoundIndex.None;
+                _Sound = SoundIndex.None;
                 _Tag = null;
                 _Text = null;
                 _Visible = false;
@@ -1816,7 +1793,7 @@ namespace SharpdxControl.Controls
                 PassThroughChanged = null;
                 SizeChanged = null;
                 SortChanged = null;
-                //SoundChanged = null;
+                SoundChanged = null;
                 TextChanged = null;
                 VisibleChanged = null;
                 IsEnabledChanged = null;
