@@ -8,7 +8,7 @@ using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace SharpdxControl.Control
+namespace SharpdxControl.Controls
 {
     public class DXLabel : DXControl
     {

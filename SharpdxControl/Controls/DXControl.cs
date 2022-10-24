@@ -4,7 +4,7 @@ using SharpdxControl.Envir;
 using SharpdxControl.SharpDXs;
 using System.Numerics;
 
-namespace SharpdxControl.Control
+namespace SharpdxControl.Controls
 {
     public enum ChatType
     {

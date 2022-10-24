@@ -2,7 +2,7 @@
 using SharpdxControl.Envir;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using SharpdxControl.Control;
+using SharpdxControl.Controls;
 using Blend = SharpDX.Direct3D9.Blend;
 using SharpdxControl.SharpDXs;
 using SharpDX;

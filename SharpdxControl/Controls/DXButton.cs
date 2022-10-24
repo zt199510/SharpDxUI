@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SharpDX.Direct3D9;
 using SharpdxControl.SharpDXs;
 
-namespace SharpdxControl.Control
+namespace SharpdxControl.Controls
 {
     /// <summary>
     /// 按钮

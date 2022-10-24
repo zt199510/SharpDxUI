@@ -1,6 +1,6 @@
 using SharpDX.Windows;
 using SharpdxControl;
-using SharpdxControl.Control;
+using SharpdxControl.Controls;
 using SharpdxControl.Envir;
 using SharpdxControl.Scenes;
 using System.Runtime.InteropServices;

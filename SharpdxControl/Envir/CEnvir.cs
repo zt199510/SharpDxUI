@@ -1,7 +1,7 @@
 ﻿using Library;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
-using SharpdxControl.Control;
+using SharpdxControl.Controls;
 
 using SharpdxControl.SharpDXs;
 using System;

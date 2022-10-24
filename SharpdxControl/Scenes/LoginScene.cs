@@ -1,4 +1,4 @@
-﻿using SharpdxControl.Control;
+﻿using SharpdxControl.Controls;
 using SharpdxControl.Envir;
 using System;
 using System.Collections.Generic;

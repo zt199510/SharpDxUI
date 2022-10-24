@@ -3,7 +3,7 @@ using Library;
 using SharpdxControl.Envir;
 using System.Windows.Forms;
 
-namespace SharpdxControl.Control
+namespace SharpdxControl.Controls
 {
     public abstract class DXScene:DXControl //窗口资源
     {
