@@ -1684,11 +1684,9 @@ namespace SharpdxControl.Controls
             fX /= scale;
             fY /= scale;
 
-            DXManager.Sprite.Transform = Matrix.Scaling(scale, scale, 1);
-
-            DXManager.Sprite.Draw(texture, textureArea., Vector3.Zero, new Vector3(fX, fY, 0), colour);
-
-            DXManager.Sprite.Transform = Matrix.Identity;
+            DXManager.Sprite.Transform = SharpDX.Matrix.Scaling(scale, scale, 1);
+            DXManager.Sprite.Draw(texture, textureArea, SharpDX.Vector3.Zero, new SharpDX.Vector3(fX, fY, 0), colour);
+            DXManager.Sprite.Transform = SharpDX.Matrix.Identity;
         }
 
         #endregion
