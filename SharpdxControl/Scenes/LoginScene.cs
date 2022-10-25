@@ -22,7 +22,8 @@ namespace SharpdxControl.Scenes
             {
                 Location = new Point(10, 10),
                 Text = "聊天设置",
-                Parent = this
+                Parent = this,
+                OutlineColour = Color.White,
             };
 
             new DXLabel
