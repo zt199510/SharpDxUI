@@ -12,7 +12,7 @@ namespace SharpdxControl.Controls
 {
     public class DXLabel : DXControl
     {
-        #region Static
+        #region Static全局方法
         public static Size GetSize(string text, Font font, bool outline)
         {
             if (string.IsNullOrEmpty(text))
@@ -175,6 +175,22 @@ namespace SharpdxControl.Controls
 
         #endregion
 
+        #region Override重写属性方法
+        public override void OnTextChanged(string oValue, string nValue)
+        {
+            base.OnTextChanged(oValue, nValue);
+
+            TextureValid = false;
+            CreateSize();
+        }
+        public override void OnForeColourChanged(Color oValue, Color nValue)
+        {
+            base.OnForeColourChanged(oValue, nValue);
+
+            TextureValid = false;
+        }
+        #endregion
+
         #endregion
 
         public DXLabel()
@@ -198,7 +214,9 @@ namespace SharpdxControl.Controls
             Size = GetSize(Text, Font, Outline);
         }
 
-        #region Override从写方法
+        #region Override重写方法
+     
+
         protected override void CreateTexture()
         {
             int width = DisplayArea.Width;
@@ -211,9 +229,7 @@ namespace SharpdxControl.Controls
                 DXManager.ControlList.Add(this);
             }
 
-            DataRectangle rect = ControlTexture.LockRectangle(0, LockFlags.Discard);
-
-            using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, rect.DataPointer))
+            using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, ControlTexture.LockRectangle(0, LockFlags.Discard).DataPointer))
             using (Graphics graphics = Graphics.FromImage(image))
             {
                 DXManager.ConfigureGraphics(graphics);

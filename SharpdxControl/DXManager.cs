@@ -58,10 +58,8 @@ namespace SharpdxControl
             if (CEnvir.Target.ClientSize == size) return;
             Device.Clear(ClearFlags.Target, System.Drawing.Color.Black.ToRawColorBGRA(), 0, 0);
             Device.Present();
-
             CEnvir.Target.ClientSize = size;
             CEnvir.Target.MaximizeBox = false;
-
         }
 
         public static void ConfigureGraphics(Graphics graphics)
