@@ -22,13 +22,11 @@ namespace SharpdxControl.Controls
         {
             base.OnLocationChanged(oValue, nValue);
 
-            if (DebugLabel == null || PingLabel == null || AttackModeLabel == null || JJLabel == null || PetModeLabel == null) return;
+            if (DebugLabel == null || PingLabel == null ) return;
 
             DebugLabel.Location = new Point(Location.X + 5, 0);
             PingLabel.Location = new Point(Location.X + 5, 0);
-            JJLabel.Location = new Point(Location.X + 5, 0);
-            AttackModeLabel.Location = new Point(Location.X + 5, 0);
-            PetModeLabel.Location = new Point(Location.X + 5, 0);
+           
             // NowLabel.Location = new Point(Location.X + 5, Location.Y + 5);
 
         }

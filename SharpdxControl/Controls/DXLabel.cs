@@ -12,38 +12,56 @@ namespace SharpdxControl.Controls
 {
     public class DXLabel : DXControl
     {
-        public bool Shadow;
-        public DXLabel()
+        #region Static
+        public static Size GetSize(string text, Font font, bool outline)
         {
-            BackColour = Color.Empty;
-            DrawTexture = true;
-            AutoSize = true;
-            Font = new Font("宋体", CEnvir.FontSize(8.5f), FontStyle.Regular);
-            ForeColour = Color.White;
-            OutlineColour = Color.FromArgb(8, 8, 8);
-            Outline = true;
-            DrawFormat = TextFormatFlags.ExternalLeading | TextFormatFlags.ExpandTabs | TextFormatFlags.WordBreak;
+            if (string.IsNullOrEmpty(text))
+                return Size.Empty;
 
+            Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, text, font);
+
+            if (outline && tempSize.Width > 0 && tempSize.Height > 0)
+            {
+                tempSize.Width += 2;
+                tempSize.Height += 2;
+            }
+
+            return tempSize;
         }
+
+        public static Size GetHeight(DXLabel label, int width)
+        {
+            Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, label.Text, label.Font, new Size(width, 2000), label.DrawFormat);
+
+            if (label.Outline && tempSize.Width > 0 && tempSize.Height > 0)
+            {
+                tempSize.Width += 2;
+                tempSize.Height += 2;
+            }
+
+            return tempSize;
+        }
+
+        #endregion
+
 
         #region Properties属性
 
-        #region AutoSize 大小自动变化
-
+        #region AutoSize自动大小
+        private bool _AutoSize;
         public bool AutoSize
         {
-            get => _AutoSize;
+            get { return _AutoSize; }
             set
             {
-                if (_AutoSize == value) return;
 
+                if (_AutoSize == value) return;
                 bool oldValue = _AutoSize;
                 _AutoSize = value;
-
                 OnAutoSizeChanged(oldValue, value);
             }
         }
-        private bool _AutoSize;
+
         public event EventHandler<EventArgs> AutoSizeChanged;
         public virtual void OnAutoSizeChanged(bool oValue, bool nValue)
         {
@@ -55,7 +73,8 @@ namespace SharpdxControl.Controls
 
         #endregion
 
-        #region DrawFormat绘制字体格式
+        #region DrawFormat//绘制文本格式
+
         public TextFormatFlags DrawFormat
         {
             get => _DrawFormat;
@@ -77,10 +96,10 @@ namespace SharpdxControl.Controls
 
             DrawFormatChanged?.Invoke(this, EventArgs.Empty);
         }
+
         #endregion
 
-        #region Font字体
-
+        #region Font文本格式
         public Font Font
         {
             get => _Font;
@@ -103,12 +122,9 @@ namespace SharpdxControl.Controls
             TextureValid = false;
             CreateSize();
         }
-
         #endregion
 
-        #region Outline
-
-
+        #region Outline输出行
 
         public bool Outline
         {
@@ -116,10 +132,8 @@ namespace SharpdxControl.Controls
             set
             {
                 if (_Outline == value) return;
-
                 bool oldValue = _Outline;
                 _Outline = value;
-
                 OnOutlineChanged(oldValue, value);
             }
         }
@@ -135,7 +149,7 @@ namespace SharpdxControl.Controls
 
         #endregion
 
-        #region OutlineColour
+        #region OutlineColour输入行颜色
 
         public Color OutlineColour
         {
@@ -150,9 +164,6 @@ namespace SharpdxControl.Controls
                 OnOutlineColourChanged(oldValue, value);
             }
         }
-
-
-
         private Color _OutlineColour;
         public event EventHandler<EventArgs> OutlineColourChanged;
         public virtual void OnOutlineColourChanged(Color oValue, Color nValue)
@@ -164,83 +175,67 @@ namespace SharpdxControl.Controls
 
         #endregion
 
-        public override void OnTextChanged(string oValue, string nValue)
-        {
-            base.OnTextChanged(oValue, nValue);
-
-            TextureValid = false;
-            CreateSize();
-        }
-
         #endregion
 
+        public DXLabel()
+        {
+            BackColour = Color.Empty;
+            DrawTexture = true;
+            AutoSize = true;
+            Font = new Font("宋体", CEnvir.FontSize(8F));
+            DrawFormat = TextFormatFlags.WordBreak;
 
-        #region Methods方法
-        //创建自动大小
+            Outline = true;
+            ForeColour = Color.FromArgb(198, 166, 99);
+            OutlineColour = Color.Black;
+        }
+
+
+        #region Methods
         private void CreateSize()
         {
             if (!AutoSize) return;
             Size = GetSize(Text, Font, Outline);
         }
+
+        #region Override从写方法
         protected override void CreateTexture()
         {
             int width = DisplayArea.Width;
             int height = DisplayArea.Height;
-
             if (ControlTexture == null || DisplayArea.Size != TextureSize)
             {
                 DisposeTexture();
                 TextureSize = DisplayArea.Size;
-                ControlTexture = new Texture(DXManager.Device, TextureSize.Width, TextureSize.Height + 1, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
+                ControlTexture = new Texture(DXManager.Device, TextureSize.Width, TextureSize.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
                 DXManager.ControlList.Add(this);
             }
 
+            DataRectangle rect = ControlTexture.LockRectangle(0, LockFlags.Discard);
 
-
-            using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, ControlTexture.LockRectangle(0, LockFlags.Discard).DataPointer))
+            using (Bitmap image = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, rect.DataPointer))
             using (Graphics graphics = Graphics.FromImage(image))
-            { 
+            {
                 DXManager.ConfigureGraphics(graphics);
-                graphics.Clear(base.BackColour);
+                graphics.Clear(BackColour);
+
                 if (Outline)
                 {
-                    if (Shadow)
-                    {
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(2, 2, width, height), Color.Black, DrawFormat);
-                        if (!string.IsNullOrEmpty(base.Text))
-                        {
-                            TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
-                        }
-                    }
-                    else if (OutlineColour != Color.Transparent)
-                    {
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
-                        if (!string.IsNullOrEmpty(base.Text))
-                        {
-                            TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(base.Text))
-                    {
-                        TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 1, width, height), base.ForeColour, DrawFormat);
-                    }
-
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(0, 1, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(2, 1, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 2, width, height), OutlineColour, DrawFormat);
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 1, width, height), ForeColour, DrawFormat);
                 }
-                else if (!string.IsNullOrEmpty(base.Text))
-                {
-                    TextRenderer.DrawText(graphics, base.Text, Font, new Rectangle(1, 0, width, height), base.ForeColour, DrawFormat);
-                }
+                else
+                    TextRenderer.DrawText(graphics, Text, Font, new Rectangle(1, 0, width, height), ForeColour, DrawFormat);
             }
             ControlTexture.UnlockRectangle(0);
-            DXManager.Sprite.Flush();
-           
 
             TextureValid = true;
             ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
+
         protected override void DrawControl()
         {
             if (!DrawTexture) return;
@@ -254,54 +249,8 @@ namespace SharpdxControl.Controls
             ExpireTime = CEnvir.Now + Config.CacheDuration;
         }
         #endregion
-
-
-        #region 全局静态方法
-        //文本拆分
-        static int SubstringCount(string str, string substring)
-        {
-            if (str.Contains(substring))
-            {
-                string strReplaced = str.Replace(substring, "");
-                return (str.Length - strReplaced.Length) / substring.Length;
-            }
-
-            return 0;
-        }
-
-        //获取字体大小
-        public static Size GetSize(string text, Font font, bool outline)
-        {
-            //如果空就返回0,0
-            if (string.IsNullOrEmpty(text))
-                return Size.Empty;
-
-            try
-            {
-                ///计算字符串文本所占的尺寸
-                Size tempSize = TextRenderer.MeasureText(DXManager.Graphics, text, font);
-                if (outline && tempSize.Width > 0 && tempSize.Height > 0)
-                {
-                    tempSize.Width += 2;
-                    tempSize.Height += 2;
-                }
-
-                int c = 0;
-                int g = 0;
-
-                c = SubstringCount(text, "\n");
-                //判断是否需要换行
-                g = c == 0 ? c : c + 1;
-
-                return new Size(tempSize.Width, tempSize.Height + g * 2);
-
-            }
-            catch (Exception)
-            {
-                return Size.Empty; ;
-            }   
-        }
         #endregion
+
 
 
         #region IDisposable
@@ -328,3 +277,4 @@ namespace SharpdxControl.Controls
         #endregion
     }
 }
+

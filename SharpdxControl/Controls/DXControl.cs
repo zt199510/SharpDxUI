@@ -1609,7 +1609,7 @@ namespace SharpdxControl.Controls
             Surface old = DXManager.CurrentSurface;
             DXManager.SetSurface(DXManager.ScratchSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, 0, 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, BorderColour.ToRawColorBGRA(), 0, 0);
 
             DXManager.Line.Draw(BorderInformation, BorderColour.ToRawColorBGRA());
 
@@ -1749,7 +1749,7 @@ namespace SharpdxControl.Controls
                 _PassThrough = false;
                 _Size = Size.Empty;
                 _Sort = false;
-                _Sound = SoundIndex.None;
+               // _Sound = SoundIndex.None;
                 _Tag = null;
                 _Text = null;
                 _Visible = false;
@@ -1791,7 +1791,7 @@ namespace SharpdxControl.Controls
                 PassThroughChanged = null;
                 SizeChanged = null;
                 SortChanged = null;
-                SoundChanged = null;
+                //SoundChanged = null;
                 TextChanged = null;
                 VisibleChanged = null;
                 IsEnabledChanged = null;
