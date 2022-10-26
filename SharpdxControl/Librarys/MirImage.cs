@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace SharpdxControl.Librarys
 {
@@ -105,8 +106,6 @@ namespace SharpdxControl.Librarys
 
             OverlayWidth = reader.ReadInt16();
             OverlayHeight = reader.ReadInt16();
-
-
         }
 
         public unsafe bool VisiblePixel(System.Drawing.Point p, bool acurrate)
@@ -164,7 +163,7 @@ namespace SharpdxControl.Librarys
 
             DXManager.TextureList.Remove(this);
         }
-
+    
         public unsafe void CreateImage(BinaryReader reader)
         {
             if (Position == 0) return;
@@ -173,21 +172,20 @@ namespace SharpdxControl.Librarys
             int h = Height + (4 - Height % 4) % 4;
 
             if (w == 0 || h == 0) return;
-
+          
             Image = new Texture(DXManager.Device, w, h, 1, Usage.None, Format.Dxt1, Pool.Managed);
             DataRectangle rect = Image.LockRectangle(0, LockFlags.Discard);
             ImageData = (byte*)(void*)rect.DataPointer;
-            byte[] array = null;
+            DataStream dataStream = new DataStream(rect.DataPointer, ImageDataSize, true, true);
+            byte[] bytes;
             lock (reader)
             {
                 reader.BaseStream.Seek(Position, SeekOrigin.Begin);
-                array = WriteDatapointer(reader.ReadBytes(ImageDataSize));
+                bytes = reader.ReadBytes(ImageDataSize);
             }
-            DataStream dataStream = new DataStream(rect.DataPointer, array.Length, true, true);
-            dataStream.Write(array, 0, array.Length);
+            dataStream.Write(bytes, 0, ImageDataSize);
             Image.UnlockRectangle(0);
             dataStream.Dispose();
-            array = null;
             ImageValid = true;
             ExpireTime = CEnvir.Now + Config.CacheDuration;
             DXManager.TextureList.Add(this);
@@ -205,14 +203,13 @@ namespace SharpdxControl.Librarys
             int h = ShadowHeight + (4 - ShadowHeight % 4) % 4;
 
             if (w == 0 || h == 0) return;
-
-            Shadow = new Texture(DXManager.Device, w, h, 1, Usage.None, Format.Dxt5, Pool.Managed);
+            Shadow = new Texture(DXManager.Device, w, h, 1, Usage.None, Format.Dxt1, Pool.Managed);
             DataRectangle rect = Shadow.LockRectangle(0, LockFlags.Discard);
             ShadowData = (byte*)(void*)rect.DataPointer;
             byte[] array = null;
             lock (reader)
             {
-                reader.BaseStream.Seek(Position, SeekOrigin.Begin);
+                reader.BaseStream.Seek(Position + ImageDataSize, SeekOrigin.Begin);
                 array = WriteDatapointer(reader.ReadBytes(ShadowDataSize));
             }
             DataStream dataStream = new DataStream(rect.DataPointer, array.Length, true, true);
@@ -241,7 +238,7 @@ namespace SharpdxControl.Librarys
             byte[] array = null;
             lock (reader)
             {
-                reader.BaseStream.Seek(Position, SeekOrigin.Begin);
+                reader.BaseStream.Seek(Position + ImageDataSize + ShadowDataSize, SeekOrigin.Begin);
                 array = WriteDatapointer(reader.ReadBytes(OverlayDataSize));
             }
             DataStream dataStream = new DataStream(rect.DataPointer, array.Length, true, true);

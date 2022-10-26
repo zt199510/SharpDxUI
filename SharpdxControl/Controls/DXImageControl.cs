@@ -1,4 +1,7 @@
+using Librarys;
 using SharpdxControl.Enums;
+using SharpdxControl.Envir;
+using SharpdxControl.Librarys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -183,7 +186,183 @@ namespace SharpdxControl.Controls
 
         #endregion
 
+        #region LibraryFile资源路劲
+        public MirLibrary Library;
 
+        public LibraryFile LibraryFile
+        {
+            get => _LibraryFile;
+            set
+            {
+                if (_LibraryFile == value) return;
+
+                LibraryFile oldValue = _LibraryFile;
+                _LibraryFile = value;
+
+                OnLibraryFileChanged(oldValue, value);
+            }
+        }
+        private LibraryFile _LibraryFile;
+        public event EventHandler<EventArgs> LibraryFileChanged;
+        public virtual void OnLibraryFileChanged(LibraryFile oValue, LibraryFile nValue)
+        {
+            CEnvir.LibraryList.TryGetValue(LibraryFile, out Library);
+            TextureValid = false;
+            UpdateDisplayArea();
+            LibraryFileChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region PixelDetect像素检测
+
+        public bool PixelDetect
+        {
+            get => _PixelDetect;
+            set
+            {
+                if (_PixelDetect == value) return;
+
+                bool oldValue = _PixelDetect;
+                _PixelDetect = value;
+
+                OnPixelDetectChanged(oldValue, value);
+            }
+        }
+        private bool _PixelDetect;
+        public event EventHandler<EventArgs> PixelDetectChanged;
+        public virtual void OnPixelDetectChanged(bool oValue, bool nValue)
+        {
+            PixelDetectChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region UseOffSet是否需要偏移
+
+        public bool UseOffSet
+        {
+            get => _UseOffSet;
+            set
+            {
+                if (_UseOffSet == value) return;
+
+                bool oldValue = _UseOffSet;
+                _UseOffSet = value;
+
+                OnUseOffSetChanged(oldValue, value);
+            }
+        }
+        private bool _UseOffSet;
+        public event EventHandler<EventArgs> UseOffSetChanged;
+        public virtual void OnUseOffSetChanged(bool oValue, bool nValue)
+        {
+            UpdateDisplayArea();
+            UseOffSetChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        public override Size Size
+        {
+            get
+            {
+                if (Library != null && Index >= 0 && !FixedSize)
+                    return Library.GetSize(Index);
+
+                return base.Size;
+            }
+            set => base.Size = value;
+        }
+
+        #endregion
+
+        public DXImageControl()
+        {
+            DrawImage = true;
+            Index = -1;
+            ImageOpacity = 1F;
+            PixelDetect = true;
+        }
+
+        #region Methods方法
+
+        #region Override重写
+        protected override void DrawControl()
+        {
+            base.DrawControl();
+            if (!DrawImage) return;
+
+            DrawMirTexture();
+        }
+
+        protected internal override void UpdateDisplayArea()
+        {
+            Rectangle area = new Rectangle(Location, Size);
+
+            if (UseOffSet && Library != null)
+                area.Offset(Library.GetOffSet(Index));
+
+            if (Parent != null)
+                area.Offset(Parent.DisplayArea.Location);
+
+            DisplayArea = area;
+        }
+
+        #endregion
+
+        protected virtual void DrawMirTexture()
+        {
+            bool oldBlend = DXManager.Blending;
+            float oldRate = DXManager.BlendRate;
+
+            MirImage image = Library.CreateImage(Index, ImageType.Image);
+
+            if (image?.Image == null) return;
+
+            if (Blend)
+                DXManager.SetBlend(true, ImageOpacity, BlendMode);
+            else
+                DXManager.SetOpacity(ImageOpacity);
+
+            PresentTexture(image.Image, FixedSize ? null : Parent, DisplayArea, IsEnabled ? ForeColour : Color.FromArgb(75, 75, 75), this, 0, 0, Scale);
+
+            if (Blend)
+                DXManager.SetBlend(oldBlend, oldRate, BlendMode);
+            else
+                DXManager.SetOpacity(1F);
+
+            image.ExpireTime = Time.Now + Config.CacheDuration;
+        }
+        #endregion
+
+        #region IDisposable
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                _Blend = false;
+                _DrawImage = false;
+                _FixedSize = false;
+                _ImageOpacity = 0F;
+                _Index = -1;
+                Library = null;
+                _LibraryFile = LibraryFile.None;
+                _PixelDetect = false;
+                _UseOffSet = false;
+
+                BlendChanged = null;
+                DrawImageChanged = null;
+                FixedSizeChanged = null;
+                ImageOpacityChanged = null;
+                IndexChanged = null;
+                LibraryFileChanged = null;
+                PixelDetectChanged = null;
+                UseOffSetChanged = null;
+            }
+        }
         #endregion
     }
 }

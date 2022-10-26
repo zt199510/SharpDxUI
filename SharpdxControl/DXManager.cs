@@ -64,7 +64,7 @@ namespace SharpdxControl
         public static void SetResolution(Size size)
         {
             if (CEnvir.Target.ClientSize == size) return;
-            Device.Clear(ClearFlags.Target, System.Drawing.Color.Black.ToRawColorBGRA(), 0, 0);
+            Device.Clear(ClearFlags.Target, System.Drawing.Color.Empty.ToRawColorBGRA(), 0, 0);
             Device.Present();
             CEnvir.Target.ClientSize = size;
             CEnvir.Target.MaximizeBox = false;
@@ -120,6 +120,93 @@ namespace SharpdxControl
             ScratchTexture = new Texture(Device, Parameters.BackBufferWidth, Parameters.BackBufferHeight, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
             ScratchSurface = ScratchTexture.GetSurfaceLevel(0);
         }
+    
+
+
+
+        private static void CleanUp()
+        {
+            //if (Sprite != null)
+            //{
+            //    if (!Sprite.Disposed)
+            //        Sprite.Dispose();
+
+            //    Sprite = null;
+            //}
+
+            //if (Line != null)
+            //{
+            //    if (!Line.Disposed)
+            //        Line.Dispose();
+
+            //    Line = null;
+            //}
+
+            //if (CurrentSurface != null)
+            //{
+            //    if (!CurrentSurface.Disposed)
+            //        CurrentSurface.Dispose();
+
+            //    CurrentSurface = null;
+            //}
+
+            //if (_ColourPallete != null)
+            //{
+            //    if (!_ColourPallete.Disposed)
+            //        _ColourPallete.Dispose();
+
+            //    _ColourPallete = null;
+            //}
+
+            //if (ScratchTexture != null)
+            //{
+            //    if (!ScratchTexture.Disposed)
+            //        ScratchTexture.Dispose();
+
+            //    ScratchTexture = null;
+            //}
+
+            //if (ScratchSurface != null)
+            //{
+            //    if (!ScratchSurface.Disposed)
+            //        ScratchSurface.Dispose();
+
+            //    ScratchSurface = null;
+            //}
+
+            //if (PoisonTexture != null)
+            //{
+            //    if (!PoisonTexture.Disposed)
+            //        PoisonTexture.Dispose();
+
+            //    PoisonTexture = null;
+            //}
+
+
+            //if (_LightTexture != null)
+            //{
+            //    if (!_LightTexture.Disposed)
+            //        _LightTexture.Dispose();
+
+            //    _LightTexture = null;
+            //}
+
+
+            //if (_LightSurface != null)
+            //{
+            //    if (!_LightSurface.Disposed)
+            //        _LightSurface.Dispose();
+
+            //    _LightSurface = null;
+            //}
+
+
+            for (int i = ControlList.Count - 1; i >= 0; i--)
+                ControlList[i].DisposeTexture();
+
+            for (int i = TextureList.Count - 1; i >= 0; i--)
+                TextureList[i].DisposeTexture();
+        }
 
         /// <summary>
         /// 资源销毁
@@ -132,6 +219,14 @@ namespace SharpdxControl
 
                 ControlList[i].DisposeTexture();
             }
+
+            for (int i = TextureList.Count - 1; i >= 0; i--)
+            {
+                if (CEnvir.Now < TextureList[i].ExpireTime) continue;
+
+                TextureList[i].DisposeTexture();
+            }
+
         }
 
         /// <summary>

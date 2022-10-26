@@ -3,8 +3,8 @@ using SharpDX;
 using SharpdxControl.Enums;
 using SharpdxControl.Envir;
 using System.IO;
-using Library;
 using SharpdxControl.SharpDXs;
+using Librarys;
 
 namespace SharpdxControl.Librarys
 {
@@ -355,6 +355,7 @@ namespace SharpdxControl.Librarys
 
             image.ExpireTime = Time.Now + Config.CacheDuration;
         }
+
         public void DrawBlend(int index, float size, System.Drawing.Color colour, float x, float y, float angle, float opacity, ImageType type, bool useOffSet = false, byte shadow = 0)
         {
             if (!CheckImage(index)) return;

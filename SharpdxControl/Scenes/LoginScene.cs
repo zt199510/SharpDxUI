@@ -32,6 +32,18 @@ namespace SharpdxControl.Scenes
                 Text = "聊天设置123123",
                 Parent = this,
             };
+
+            new DXButton
+            {
+                Location = new Point(Title.Location.X + Title.DisplayArea.Width + 20, 50),
+                Label = { Text = "小蝌蚪找妈妈" },
+                Size = new Size(100, DefaultHeight),
+                Parent = this,
+            };
+
+
+            
+
         }
 
         public override void Process()

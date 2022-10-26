@@ -1,7 +1,9 @@
 using SharpDX.Windows;
 using SharpdxControl;
 using SharpdxControl.Controls;
+using SharpdxControl.Enums;
 using SharpdxControl.Envir;
+using SharpdxControl.Librarys;
 using SharpdxControl.Scenes;
 using System.Runtime.InteropServices;
 
@@ -21,6 +23,14 @@ namespace MirTest
             SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            foreach (KeyValuePair<LibraryFile, string> pair in Libraries.LibraryList)
+            {
+                if (!File.Exists(@".\" + pair.Value)) continue;
+
+                CEnvir.LibraryList[pair.Key] = new MirLibrary(@".\" + pair.Value);
+            }
+
             CEnvir.Target = new TargetForm();//实例化窗口
             DXManager.Create();//创建画面管理
             CEnvir.Target.MaximizeBox = true;

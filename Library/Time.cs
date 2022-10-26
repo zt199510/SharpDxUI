@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Library
+namespace Librarys
 {
     public static class Time
     {

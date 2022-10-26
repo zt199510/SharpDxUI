@@ -1,8 +1,9 @@
-﻿using Library;
+﻿using Librarys;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
 using SharpdxControl.Controls;
-
+using SharpdxControl.Enums;
+using SharpdxControl.Librarys;
 using SharpdxControl.SharpDXs;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,10 @@ namespace SharpdxControl.Envir
         public static int Loopdelay;
         public static DateTime LastLoopTime;
         #endregion
+
+
+        public static Dictionary<LibraryFile, MirLibrary> LibraryList = new Dictionary<LibraryFile, MirLibrary>();
+
 
 
         public static DateTime Now;
@@ -79,7 +84,7 @@ namespace SharpdxControl.Envir
                 return;
             }
 
-            DXManager.Device.Clear(ClearFlags.Target, Color.Black.ToRawColorBGRA(), 1, 0);
+            DXManager.Device.Clear(ClearFlags.Target, System.Drawing.Color.Empty.ToRawColorBGRA(), 1, 0);
             DXManager.Device.BeginScene();
             DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
             DXControl.ActiveScene?.Draw();

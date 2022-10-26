@@ -3,6 +3,8 @@ using SharpDX.Direct3D9;
 using SharpdxControl.Envir;
 using SharpdxControl.SharpDXs;
 using System.Numerics;
+using SharpdxControl.Enums;
+using SharpdxControl.Librarys;
 
 namespace SharpdxControl.Controls
 {
@@ -85,7 +87,7 @@ namespace SharpdxControl.Controls
         public static int SmallButtonHeight { get; }
 
         public static DXLabel DebugLabel, HintLabel, PingLabel;
-      //  protected static MirLibrary InterfaceLibrary;
+        protected static MirLibrary InterfaceLibrary;
 
         static DXControl()
         {
@@ -119,11 +121,11 @@ namespace SharpdxControl.Controls
             //    ForeColour = Color.White,
             //};
 
-            //CEnvir.LibraryList.TryGetValue(LibraryFile.Interface, out InterfaceLibrary);
+            CEnvir.LibraryList.TryGetValue(LibraryFile.Interface, out InterfaceLibrary);
 
-            //if (InterfaceLibrary == null) return;
+            if (InterfaceLibrary == null) return;
 
-            //DefaultHeight = InterfaceLibrary.GetSize(16).Height;
+            DefaultHeight = InterfaceLibrary.GetSize(16).Height;
             //TabHeight = InterfaceLibrary.GetSize(19).Height;
             //SmallButtonHeight = InterfaceLibrary.GetSize(41).Height;
 
@@ -995,7 +997,7 @@ namespace SharpdxControl.Controls
             Surface previous = DXManager.CurrentSurface;
             DXManager.SetSurface(ControlSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, BackColour.ToRawColorBGRA(), 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, System.Drawing.Color.Empty.ToRawColorBGRA(), 0, 0);
 
             OnClearTexture();
 
@@ -1609,7 +1611,7 @@ namespace SharpdxControl.Controls
             Surface old = DXManager.CurrentSurface;
             DXManager.SetSurface(DXManager.ScratchSurface);
 
-            DXManager.Device.Clear(ClearFlags.Target, BorderColour.ToRawColorBGRA(), 0, 0);
+            DXManager.Device.Clear(ClearFlags.Target, System.Drawing.Color.Empty.ToRawColorBGRA(), 0, 0);
 
             DXManager.Line.Draw(BorderInformation, BorderColour.ToRawColorBGRA());
 

@@ -1,12 +1,15 @@
 ﻿
 using SharpDX.Direct3D9;
+using SharpdxControl.Enums;
 using SharpdxControl.Envir;
+using SharpdxControl.Librarys;
 using SharpdxControl.SharpDXs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.TextFormatting;
 
 
 namespace SharpdxControl.Controls
@@ -14,7 +17,7 @@ namespace SharpdxControl.Controls
     /// <summary>
     /// 按钮
     /// </summary>
-    public class DXButton : DXControl
+    public class DXButton : DXImageControl
     {
         #region Properites属性
 
@@ -240,7 +243,7 @@ namespace SharpdxControl.Controls
             ForeColour = Color.White;
          //   Sound = SoundIndex.ButtonA;
             CanBePressed = true;
-            ForeColour = new SharpDX.Color4(0.85F, 0.85F, 0.85F,0).ToColor();
+            ForeColour = new SharpDX.Color4(0.85F, 0.85F, 0.85F,1f).ToColor();
             Label = new DXLabel
             {
                 Location = new Point(0, -1),
@@ -273,7 +276,68 @@ namespace SharpdxControl.Controls
 
             DisplayArea = area;
         }
-        
+
+
+        protected override void DrawMirTexture()
+        {
+            Texture texture;
+            if (Library == null)
+            {
+                DXManager.SetOpacity(base.Opacity);
+                Surface currentSurface = DXManager.CurrentSurface;
+                DXManager.SetSurface(DXManager.ScratchSurface);
+                DXManager.Device.Clear(ClearFlags.Target, System.Drawing.Color.Empty.ToRawColorBGRA(), 0f, 0);
+                switch (ButtonType)
+                {
+                    case ButtonType.Default:
+                        DrawDefault();
+                        break;
+                    case ButtonType.SelectedTab:
+                        DrawSelectedTab();
+                        break;
+                    case ButtonType.DeselectedTab:
+                        DrawDeselectedTab();
+                        break;
+                    case ButtonType.SmallButton:
+                        DrawSmallButton();
+                        break;
+                }
+                DXManager.SetSurface(currentSurface);
+                texture = DXManager.ScratchTexture;
+            }
+            else
+            {
+                MirImage mirImage = Library.CreateImage(base.Index, ImageType.Image);
+                texture = mirImage.Image;
+                mirImage.ExpireTime = CEnvir.Now + Config.CacheDuration;
+            }
+            bool blending = DXManager.Blending;
+            float blendRate = DXManager.BlendRate;
+           // bool grayScale = DXManager.GrayScale;
+            if (Blend)
+                DXManager.SetBlend(true, ImageOpacity);
+            else
+                DXManager.SetOpacity(Opacity);
+
+          
+            //if (base.GrayScale)
+            //{
+            //    DXManager.SetGrayscale(true);
+            //}
+            DXControl.PresentTexture(texture, base.Parent, base.DisplayArea, base.ForeColour, this);
+
+            if (Blend)
+                DXManager.SetBlend(blending, blendRate, BlendMode);
+            else
+                DXManager.SetOpacity(1F);
+
+          
+            //if (base.GrayScale)
+            //{
+            //    DXManager.SetGrayscale(grayScale);
+            //}
+        }
+
         public override void OnFocus()
         {
             base.OnFocus();
@@ -303,6 +367,57 @@ namespace SharpdxControl.Controls
         }
 
         #endregion
+
+        private void DrawDefault()
+        {
+            Size s = InterfaceLibrary.GetSize(16);
+
+            int x = s.Width;
+            s = InterfaceLibrary.GetSize(18);
+            InterfaceLibrary.Draw(18, x, 0, Color.White, new Rectangle(0, 0, Size.Width - x * 2, s.Height), 1f, ImageType.Image);
+            InterfaceLibrary.Draw(16, 0, 0, Color.White, false, 1F, ImageType.Image);//绘制左边
+            s = InterfaceLibrary.GetSize(17);
+            InterfaceLibrary.Draw(17, Size.Width - s.Width, 0, Color.White, false, 1F, ImageType.Image);//绘制右边
+        }
+
+        private void DrawSelectedTab()
+        {
+            Size s = InterfaceLibrary.GetSize(22);
+            InterfaceLibrary.Draw(22, 0, 0, Color.White, false, 1F, ImageType.Image);
+
+            int x = s.Width;
+            s = InterfaceLibrary.GetSize(24);
+            InterfaceLibrary.Draw(24, x, 0, Color.White, new Rectangle(0, 0, Size.Width - x * 2, s.Height), 1f, ImageType.Image);
+
+            s = InterfaceLibrary.GetSize(23);
+            InterfaceLibrary.Draw(23, Size.Width - s.Width, 0, Color.White, false, 1F, ImageType.Image);
+        }
+        private void DrawDeselectedTab()
+        {
+            Size s = InterfaceLibrary.GetSize(19);
+            InterfaceLibrary.Draw(19, 0, 0, Color.White, false, 1F, ImageType.Image);
+
+            int x = s.Width;
+            s = InterfaceLibrary.GetSize(21);
+            InterfaceLibrary.Draw(21, x, 0, Color.White, new Rectangle(0, 0, Size.Width - x * 2, s.Height), 1f, ImageType.Image);
+
+
+            s = InterfaceLibrary.GetSize(20);
+            InterfaceLibrary.Draw(20, Size.Width - s.Width, 0, Color.White, false, 1F, ImageType.Image);
+        }
+        private void DrawSmallButton()
+        {
+            Size s = InterfaceLibrary.GetSize(41);
+            InterfaceLibrary.Draw(41, 0, 0, Color.White, false, 1F, ImageType.Image);
+
+            int x = s.Width;
+            s = InterfaceLibrary.GetSize(43);
+            InterfaceLibrary.Draw(43, x, 0, Color.White, new Rectangle(0, 0, Size.Width - x * 2, s.Height), 1f, ImageType.Image);
+
+
+            s = InterfaceLibrary.GetSize(42);
+            InterfaceLibrary.Draw(42, Size.Width - s.Width, 0, Color.White, false, 1F, ImageType.Image);
+        }
 
         #endregion
 
