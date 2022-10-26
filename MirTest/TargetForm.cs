@@ -19,7 +19,7 @@ namespace MirTest
             InitializeComponent();
             AutoScaleMode = AutoScaleMode.None;
             AutoScaleDimensions = new SizeF(96F, 96F);
-            ClientSize = new Size(640, 480);
+            ClientSize = new Size(1024, 768);
             FormBorderStyle =  FormBorderStyle.None ;
         }
     }

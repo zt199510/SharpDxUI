@@ -26,7 +26,7 @@ namespace MirTest
             CEnvir.Target.MaximizeBox = true;
             CEnvir.Target.FormBorderStyle = FormBorderStyle.Fixed3D;
 
-            DXControl.ActiveScene = new LoginScene(new Size(640,480));
+            DXControl.ActiveScene = new LoginScene(new Size(1024,768));
 
             RenderLoop.Run(CEnvir.Target, CEnvir.GameLoop);
         }

@@ -6,6 +6,8 @@ using SharpdxControl.Controls;
 using Blend = SharpDX.Direct3D9.Blend;
 using SharpdxControl.SharpDXs;
 using SharpDX;
+using SharpdxControl.Librarys;
+using SharpdxControl.Enums;
 
 namespace SharpdxControl
 {
@@ -34,11 +36,17 @@ namespace SharpdxControl
         public static Texture ScratchTexture;
 
         public static Surface ScratchSurface;
+        public static float Opacity { get; private set; } = 1F;
+
+        public static bool Blending { get; private set; }
+        public static float BlendRate { get; private set; } = 1F;
+        public static BlendMode BlendMode { get; private set; } = BlendMode.NORMAL;
+
         public static List<DXControl> ControlList { get; } = new List<DXControl>();
-        // public static List<MirImage> TextureList { get; } = new List<MirImage>();
+        public static List<MirImage> TextureList { get; } = new List<MirImage>();
         // public static List<DXSound> SoundList { get; } = new List<DXSound>();
 
-        public static float Opacity { get; private set; } = 1F;
+   
 
         public static Texture PoisonTexture;
         static DXManager()
@@ -159,6 +167,8 @@ namespace SharpdxControl
             Sprite.Flush();
         }
 
+
+
         public static void SetSurface(Surface surface)
         {
             if (CurrentSurface == surface) return;
@@ -166,6 +176,64 @@ namespace SharpdxControl
             Sprite.Flush();
             CurrentSurface = surface;
             Device.SetRenderTarget(0, surface);
+        }
+
+
+        public static void SetBlend(bool value, float rate = 1F, BlendMode mode = BlendMode.NORMAL)
+        {
+            if (Blending == value && BlendRate == rate && BlendMode == mode) return;
+
+            Blending = value;
+            BlendRate = rate;
+            BlendMode = mode;
+
+            Sprite.Flush();
+            Sprite.End();
+
+            if (Blending)
+            {
+                Sprite.Begin(SpriteFlags.DoNotSaveState);
+                Device.SetRenderState(RenderState.AlphaBlendEnable, true);
+                Device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
+                Device.SetTextureStageState(0, TextureStage.AlphaOperation, TextureOperation.Modulate);
+
+                switch (BlendMode)
+                {
+                    case BlendMode.INVLIGHT:
+                        Device.SetRenderState(RenderState.BlendOperation, BlendOperation.Add);
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.BlendFactor);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceColor);
+                        break;
+                    case BlendMode.COLORFY:
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.One);
+                        break;
+                    case BlendMode.MASK:
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.Zero);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+                        break;
+                    case BlendMode.EFFECTMASK:
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.DestinationAlpha);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.One);
+                        break;
+                    case BlendMode.HIGHLIGHT:
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.BlendFactor);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.One);
+                        break;
+                    default:
+                        Device.SetRenderState(RenderState.SourceBlend, Blend.InverseDestinationColor);
+                        Device.SetRenderState(RenderState.DestinationBlend, Blend.One);
+                        break;
+                }
+
+                Device.SetRenderState(RenderState.BlendFactor, System.Drawing.Color.FromArgb((byte)(255 * rate), (byte)(255 * rate), (byte)(255 * rate), (byte)(255 * rate)).ToArgb());
+            }
+            else
+            {
+                Sprite.Begin(SpriteFlags.AlphaBlend);
+            }
+
+            Device.SetRenderTarget(0, CurrentSurface);
         }
     }
 }
